@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>文章保管所</title>
+  </head>
+  <body>
+    <h1>文章保管所</h1>
+    <form>
+      <label for="input-text">文章を入力してください：</label>
+      <br>
+      <textarea id="input-text" name="input-text" rows="10" cols="50"></textarea>
+      <br>
+      <button type="submit" id="save-button">保存する</button>
+    </form>
+    <hr>
+    <h2>保存された文章：</h2>
+    <ul id="saved-texts"></ul>
+    <script>
+      // ページが読み込まれたときに、保存された文章を読み込む
+      window.onload = function() {
+        loadSavedTexts();
+      }
+      
+      // 保存ボタンがクリックされたときに、入力された文章を保存する
+      document.getElementById("save-button").addEventListener("click", function(event) {
+        event.preventDefault();
+        saveText();
+      });
+      
+      function saveText() {
+        var inputText = document.getElementById("input-text").value;
+        if (inputText) {
+          // ローカルストレージに保存された文章を読み込む
+          var savedTexts = JSON.parse(localStorage.getItem("savedTexts")) || [];
+          // 新しい文章を配列に追加
+          savedTexts.push(inputText);
+          // 配列をJSON形式に変換して、ローカルストレージに保存する
+          localStorage.setItem("savedTexts", JSON.stringify(savedTexts));
+          // 保存された文章を再読み込みする
+          loadSavedTexts();
+        }
+      }
+      
+      function loadSavedTexts() {
+        var savedTexts = JSON.parse(localStorage.getItem("savedTexts")) || [];
+        var savedTextsList = document.getElementById("saved-texts");
+        // 保存された文章をリストに表示する
+        savedTextsList.innerHTML = "";
+        for (var i = 0; i < savedTexts.length; i++) {
+          var listItem = document.createElement("li");
+          listItem.innerText = savedTexts[i];
+          
+          // 削除ボタンを作成し、クリックされたら保存された文章を削除する
+          var deleteButton = document.createElement("button");
+          deleteButton.innerText = "削除";
+          deleteButton.setAttribute("data-index", i);
+          deleteButton.addEventListener("click", function(event) {
+            event.preventDefault();
+            var index = event.target.getAttribute("data-index");
+            deleteSavedText(index);
+          });
+          
+          listItem.appendChild(deleteButton);
+          savedTextsList.appendChild(listItem);
+        }
+      }
+      
+      function deleteSavedText(index) {
+        // ローカルストレージから保存された文章を読み込む
+        var savedTexts = JSON.parse(localStorage.getItem("savedTexts")) || [];
+        // 指定されたインデックスの文章を削除する
+        savedTexts.splice(index, 1);
+    // 保存する
+    localStorage.setItem("savedTexts", JSON.stringify(savedTexts));
+    // 保存された文章を再読み込みする
+    loadSavedTexts();
+  }
+</script>
+  </body>
+</html>
